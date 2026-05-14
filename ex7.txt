@@ -1,0 +1,118 @@
+CI1215 - Sistemas Operacionais
+
+Exercícios sobre semáforos
+--------------------------
+
+Problema barreira-para-processos.txt
+------------------
+- A biblioteca pthreads possui funções
+  para que varias threads possam sincronizar entre si
+  com estrutura(s) de barreira(s).
+- Porém essa possibilidade de sincronização 
+  não está disponível para sincronização entre
+  processos   
+- A implementacão de barreiras (e.g. barrier em pThreads) 
+  não força nenhuma ordem à "saida" dos processos 
+  que estão na barreira (nenhuma ordem no desbloqueio).
+
+Nesse exercício você deve implementar estrutura de barreiras
+para sincronização entre processos.
+Voce deve assumir que nossas barreiras para processos, 
+só funcionarão com um conjunto de processos "irmãos" e "pai".
+Suponha temos n processos que irão sincronizar
+em uma barreira B.
+  Vamos numerar os processos com uma variável interna nProc que 
+  indica o número lógico do processo
+  - o processo com nProc=0 deve ser o processo pai de todos os outros
+  - os processos com nProc=1 até nProc=n-1 
+    devem ser filhos do processo com nProc=0
+    
+O processo 0 deve inicializar sua variável nProc e
+criar uma área de memória compartilhada no SO
+(ver infos sobre shared memory IPC nos links informados no curso).
+Nessa área o processo 0 deve preencher sua estrutura de barreira,
+com todas as veriáveis internas que serão compartilhadas
+nessa estrutura, que forem necessárias para funcionamento da 
+barreira de processos, incluindo semáforos do SO se necessário.
+
+Voce deve fazer e chamar uma funçao para inicializar as
+variaveis internas da barreira com o seguinte protótipo:
+
+  void init_barr( barrier_t *barr, int n );
+  onde: barr deve apontar para a barreira em shared memory
+        que deve ser uma struct definida por voce
+        com tipo barrier_t (ver ao final, abaixo)
+        n deve indicar o numero total de processos
+        (lidos da linha de comando)
+         
+-ATENCAO: 
+  A) nesse exercicio voce NAO precisa chamar as funcoes
+     exatas da IPC de shared memory, basta indicar
+     o que deve ser alocado na estrutura de barreira
+     a ser alocada em shared memory.
+  B) Quando formos implementar nosso trabalho 1
+     provavelmente utilizaremos uma sincronização de barreira
+     de processos, e aí sim, voce deverá chamar exatamente
+     as funções de shared memory necessárias
+     
+Depois que o processo com nProc=0 aloca a barreira ele deve criar
+seus n-1 processos filhos. Cada processo filho deve
+"herdar" o "pointer" para a área de memória compartilhada
+criada pelo processo pai. 
+- A primeira coisa a ser feita por cada
+  processo filho deve ser incializar seu valor de nProc a partir de alguma
+  informação herdada do pai. 
+- Uma vez incializado o nProc, cada processo deve
+  imprimir na tela o seu PID, o PID do seu pai, 
+  e seu valor de nProc (número lógico).
+- Nesse ponto, se necessario, os processos filhos devem
+  obter o pointer para a estrutura de barreira compartilhada
+  pelo pai em "shared memory" (fazer attach da área compartilhada
+  SE NECESSARIO, ou não, caso tenha sido "herdado" do pai e possa 
+  simplesmente ser acessado)
+- Por fim todos os n processos, devem inicializar um numero ns aleatorio
+  no intervalo [0,n-1] e fazer um sleep de ns segundos, imprimindo na tela,
+  antes de fazer o sleep, o seu numero nProc e quantos segundos irá dormir.
+- Ao acordar do sleep cada processo dos n processos (incluindo o pai)
+  deve chamar a funcao process_barrier, definida por voce, com o seguinte 
+  protótipo:
+  
+    void process_barrier( barrier_t *barr );
+    onde: barr deve apontar para a barreira em shared memory
+ 
+    Ao chamar process_barrier cada processo deve esperar pelos outros
+    em um semaforo do SO colocado na barreira para possibilitar tal espera.
+    O último processo a chamar a função process_barrier deve 
+    liberar todos os outros da espera no semaforo da barreira.
+    
+- Ao sair da barreira, cada processo deve 
+  imprimir seu nProc e indicar que saiu da barreira.
+     
+Ao final, todos os processos devem terminar.
+
+
+OBSERVACOES finais:
+-------------------
+
+Para esse exercicio:
+
+  Voce deve fazer APENAS
+  as 2 funcoes enunciadas acima nesse texto
+  e o codigo do programa principal
+  (as chamadas de função que trabalham com "shared memory"
+  voce pode deixar apenas indicado o que deve ser feito,
+  todo o resto deve estar em codigo 
+  mais perto possivel de "compilavel" em linguagem C)
+ 
+  Além disso, declarar o tipo barrier_t, 
+  seguindo o modelo abaixo e 
+  implementando corretamente os campos que vão
+  dentro da estrutura:
+  
+    typedef struct barrier_s {
+    
+      // definir aqui o que vai na struct
+      // podendo usar semaforo do SO
+      // e outras variaveis necessarias
+      
+    } barrier_t;          // tipo barrier_t 

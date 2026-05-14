@@ -1,0 +1,151 @@
+CI1215 - Sistemas Operacionais
+
+Exercícios sobre semáforos
+--------------------------
+
+Problema FifoQ.txt  (versao 1.3)
+------------------
+Fila de processos (ou threads).
+FIFO: First-In-First-Out
+
+---------------------
+Histórico: 
+  versão 1.0        Inicial (exercicio)
+  versao 1.1 a 1.3  Adições para falar sobre implementação
+                    dessa fila em trabalho da disciplina
+---------------------
+
+- A implementacão de barreiras (e.g. barrier em pThreads) 
+  não força nenhuma ordem à "saida" dos processos 
+  que estão na barreira (nenhuma ordem no desbloqueio).
+
+- Como visto, a definicão de semáforos também 
+  nao exige ordem para a liberacão de processos que estão esperando em um semáforo. 
+  Isso depende da implementacão do semaforo, 
+  pondendo ser ordem: FIFO, LIFO, random, por prioridades... etc
+
+Nesse exercício você deve implementar uma 
+fila de processos (ou threads) usando semaforos 
+comuns (contadores ou mutexes), que garantam a ordem FIFO na saida.
+Sua implementacao deve garantir a ordem FIFO 
+independentemente de como é a ordem do 
+semáforo utilizado (i.e. não sabemos a ordem do semáforo).
+
+Definir o tipo FifoQT que irá ser usada nas operacões 
+abaixo para "enfileiramento" dos processos (ou threads).
+Voce deve implementar no mínimo as funcões abaixo:
+
+void espera( FifoQT *F )  // processo chamador deve esperar na fila F
+
+void liberaPrimeiro( FifoQT *F ) // libera o primeiro processo que esteja  
+                                // "esperando" na fila F
+
+void init_fifoQ( FifoQT *F )  // inicializa uma fila F (prepara para uso)
+                        // caso seja necessário colocar valores iniciais
+                        // nas variáveis internas da FifoQ 
+                        // (ex: inicializar os semaforos usados) 
+                        
+--------------------------------------------------
+Exemplo de uso
+--------------
+
+Suponha que existam n processos (ou threads) denominadas processos 
+clientes (processos C1 até Cn). 
+Esses processos necessitam usar um recurso no sistema,
+MAS gostariamos que os processos usem esse recurso em ordem de "chegada"
+ou seja, em ordem FIFO (ou também poderia ser chamado de ordem FCFS, 
+FCFS = First Come First Served, ou seja, o primeiro a chegar é o primeiro
+a ser servido).
+
+Suponha que vamos controlar o uso do recurso 
+compartilhado em ordem FIFO.
+Para isso, suponha que temos uma fila global de processos
+compartilhada entre os processos, 
+usando as nossas funcoes que implementaremos 
+(definidas ACIMA, no inicio dese texto).
+Ou seja, 
+- antes de usar o recurso um processo chama a funcao
+  espera( &fila ), para esperar na fila em ordem de chegada.
+- Se o recurso *nao* estiver sendo usado e a fila estiver vazia, 
+  o processo nao espera, e inicia imediatamente o uso do recurso.
+- Se o recurso estiver sendo usado e a fila estiver vazia, 
+  o processo deve esperar na fila 
+  (lembrando: a fila é em ordem FIFO).
+- Quando um processo termina de usar o recurso, ele deve
+  sinalizar a fila usando a funcao liberaPrimeiro( &fila )
+  que vai liberar o uso do recurso ao primeiro processo 
+  que estiver na fila.
+  OBS: nesse caso, se nao tiver nenhum processo na fila
+  nada acontece, se tiver algum o primeiro que chegou
+  deve ser liberado (sai da fila) para usar o recurso.
+
+Suponha que os processos clientes funcionem em um loop de trabalho 
+conforme abaixo, executando algo antes (secao prologo), em seguida
+usa o recurso controlado por nossa fila de processos e depois
+executa outro código (secao epilogo).
+Suponha que para usar o recurso em ordem FIFO os processos
+chamam nossas funcoes :
+
+     Pseudo código do processo Ci
+     ----------------------------
+     
+     loop {
+     
+        // (A) executa algo (prologo)
+        espera( &fila );  // entra na fila de espera FIFO
+                          // ou passa direto se estiver vazia
+                          // e recurso estiver disponível
+                          
+           // (B) usa o recurso com exclusividade
+        
+        liberaPrimeiro( &fila );  // terminou de usar
+                                  // sinaliza a liberacao do primeiro
+                                  // da fila (caso haja processo esperando)
+                                  
+        // (C) executa algo (epilogo)                          
+                                  
+      }
+      
+      // OBS: 
+      // esse pseudo-codigo é APENAS uma idéia
+      //   de como devem funcionar os processos
+      //   para que saber como as funcoes da fila serão usadas
+      //   e dessa maneira podemos codificaĺas como exercicio
+      //
+      //   Para implementação REAL no trabalho 1 
+      //     esse pseudo-codigo incluirá mais detalhes
+      //     para que voce codifique tudo em linguagem C
+      //     e implemente o que for pedido no trabalho
+        
+-------------------------------------------
+
+OBSERVACOES finais:
+-------------------
+
+A parte 1 desse exercicio:
+
+  Voce deve fazer APENAS
+  as 3 funcoes enunciadas no inicio desse texto.
+  Ou seja, espera(...), liberaPrimeiro(...) e
+  init_fifoQ(...), 
+  bem como definir o tipo FifoQT, assim:
+  
+    typedef struct fifoQ_s {
+    
+      // definir aqui o que vai na struct
+      // podendo usar semaforo OU mutex
+      
+    } FifoQT;          // tipo FifoQueue 
+  
+A parte 2 desse exercicio: 
+(nao precisa fazer a parte 2 agora!
+poderiamos deixar isso para depois quando for implementar o TRABALHO!)
+
+  A parte 2, deve ser feita no trabalho 1
+  seria completar o codigo do processo
+  (ou thread) cliente.
+  Nele voce deve declarar tudo que for necessario,
+  implementar TODO o programa incluindo essa parte 2
+  (variaveis globais, SUAS funcoes fifo e qq outra
+   funcao ou variavel necessaria para fazer 
+   funcionar o problema)
