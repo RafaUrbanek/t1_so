@@ -194,4 +194,3 @@ mas nao fica esperando na fila, pois na verdade ele estah usando.
          ...
 
 
-

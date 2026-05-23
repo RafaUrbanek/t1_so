@@ -1,14 +1,14 @@
 # Nome do executável final
-TARGET = main
+TARGET = trab
 
 # Compilador
 CC = gcc
 
 # Flags de compilação
-CFLAGS = -Wall -g
+CFLAGS = -Wall -g -pthread
 
 # Arquivos de origem
-SOURCES = main.c
+SOURCES = $(TARGET).c
 
 # Arquivos objeto (.o) baseados nos arquivos fonte
 OBJECTS = $(SOURCES:.c=.o)
