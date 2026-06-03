@@ -11,7 +11,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Valores de número de processos
-for n in 1 5 10 20
+for n in 5 10 20
 do
     if [ "$n" -eq 1 ]; then
         arquivo="teste_${n}_processo.log"
@@ -20,7 +20,7 @@ do
     fi
 
     echo "Executando ./trab $n"
-    ./trab "$n" > "$arquivo" 2>&1
+    stdbuf -o0 ./trab "$n" > "$arquivo" 2>&1
 
     echo "Saída salva em $arquivo"
 done
